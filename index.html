@@ -57,7 +57,7 @@
             cursor: pointer;
             border: 2px solid white;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-            font-size: 14px;
+            font-size: 16px; /* 글꼴 크기 조정 */
         }
         .marker.red { background-color: #FF6B6B; }
         .marker.blue { background-color: #4A90E2; }
@@ -228,6 +228,25 @@
         });
 
         clusterer.addMarkers(markerList);
+
+        // 지도 줌 이벤트 핸들러
+        kakao.maps.event.addListener(map, 'zoom_changed', function() {
+            const level = map.getLevel();
+            document.querySelectorAll('.marker').forEach(marker => {
+                let size = 40; // 기본 크기
+                let fontSize = 16; // 기본 글자 크기
+                if (level < 5) {
+                    size = 70;
+                    fontSize = 24;
+                } else if (level < 6) {
+                    size = 60;
+                    fontSize = 20;
+                }
+                marker.style.width = `${size}px`;
+                marker.style.height = `${size}px`;
+                marker.style.fontSize = `${fontSize}px`;
+            });
+        });
     };
 
     initializeMap(data);
