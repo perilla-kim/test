@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>지도 생성하기</title>
+    <style>
+        /* Navbar 스타일 */
+        #navbar {
+            list-style-type: none;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            background-color: #333;
+            position: fixed;
+            width: 100%;
+            z-index: 1000;
+            top: 0;
+            display: flex; /* Flexbox를 사용하여 정렬 */
+            justify-content: center; /* 가운데 정렬 */
+        }
+
+        #navbar li {
+            display: inline;
+        }
+
+        #navbar li a {
+            display: block;
+            color: white;
+            text-align: center;
+            padding: 14px 16px;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        #navbar li a:hover {
+            background-color: #111;
+        }
+
+        /* 지도 스타일 */
+        #map {
+            width: 100%;
+            height: 100vh;
+            margin-top: 50px; /* Navbar 높이만큼 지도 아래로 내리기 */
+        }
+
+        .marker {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            font-weight: bold;
+            position: absolute;
+            transform: translate(-50%, -50%);
+            cursor: pointer;
+            border: 2px solid white;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+            font-size: 14px;
+        }
+        .marker.red { background-color: #FF6B6B; }
+        .marker.blue { background-color: #4A90E2; }
+        .marker.green { background-color: #50E3C2; }
+        .marker.yellow { background-color: #F8E71C; color: black; }
+        .marker.purple { background-color: #BD10E0; }
+        .marker.orange { background-color: #F5A623; }
+        .marker.pink { background-color: #FF5E9C; color: black; }
+
+        /* 인포윈도우 스타일 */
+        .infowindow_wrap {
+            padding: 15px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            font-family: 'Arial', sans-serif;
+            max-width: 250px;
+        }
+        .infowindow_title {
+            font-size: 16px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        .infowindow_address, .infowindow_name, .infowindow_phone, .infowindow_description {
+            font-size: 14px;
+            margin-bottom: 5px;
+            color: #333;
+        }
+        .infowindow_address:before, .infowindow_name:before, .infowindow_phone:before, .infowindow_description:before {
+            content: '• ';
+            color: #ff6b6b;
+        }
+        .infowindow_wrap button {
+            background: #ff6b6b;
+            border: none;
+            color: white;
+            padding: 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            width: 100%;
+            text-align: center;
+            font-size: 14px;
+        }
+        .infowindow_wrap button:hover {
+            background: #ff4b4b;
+        }
+    </style>
+</head>
+<body>
+<!-- Navbar -->
+<ul id="navbar">
+    <li>
+        <a href="#">현장실증농가</a>
+    </li>
+</ul>
+
+<!-- 지도를 표시할 div 입니다 -->
+<div id="map"></div>
+
+<script type="text/javascript" src="https://dapi.kakao.com/v2/maps/sdk.js?appkey=1bead7e4afef97aa7ff0af16e41eb10e&libraries=services,clusterer"></script>
+<script>
+    const mapContainer = document.getElementById('map'),
+          mapOption = { 
+              center: new kakao.maps.LatLng(37.5665, 126.9780), // 지도의 중심좌표
+              level: 3 // 지도의 확대 레벨
+          };
+    const map = new kakao.maps.Map(mapContainer, mapOption); 
+    const markerList = [];
+    const infowindowList = [];
+    let activeInfoWindow = null; // 현재 열려있는 인포윈도우를 추적
+
+    const data = [
+        { lat: 37.5665, lng: 126.9780, color: 'red', label: '콩', title: '장소 A', address: '서울시 A구', name: '홍길동', phone: '010-1234-5678', description: '설명 A' },
+        { lat: 37.5651, lng: 126.9895, color: 'blue', label: '들깨', title: '장소 B', address: '서울시 B구', name: '이순신', phone: '010-9876-5432', description: '설명 B' },
+        { lat: 37.5641, lng: 126.9765, color: 'green', label: '참깨', title: '장소 C', address: '서울시 C구', name: '김유신', phone: '010-1357-2468', description: '설명 C' },
+        { lat: 37.5635, lng: 126.9750, color: 'yellow', label: '땅콩', title: '장소 D', address: '서울시 D구', name: '장보고', phone: '010-2468-1357', description: '설명 D' },
+        { lat: 37.5625, lng: 126.9700, color: 'purple', label: '녹두', title: '장소 E', address: '서울시 E구', name: '이성계', phone: '010-1122-3344', description: '설명 E' },
+        { lat: 37.5615, lng: 126.9650, color: 'orange', label: '수수', title: '장소 F', address: '서울시 F구', name: '유관순', phone: '010-5566-7788', description: '설명 F' },
+        { lat: 37.5605, lng: 126.9600, color: 'pink', label: '팥', title: '장소 G', address: '서울시 G구', name: '안중근', phone: '010-9900-1234', description: '설명 G' }
+    ];
+
+    const getClickHandler = (i) => () => {
+        const infowindow = infowindowList[i];
+
+        if (activeInfoWindow) {
+            activeInfoWindow.close(); // 현재 열려있는 인포윈도우가 있다면 닫음
+        }
+
+        infowindow.open(map);
+        activeInfoWindow = infowindow; // 새롭게 열린 인포윈도우를 추적
+    };
+
+    const initializeMap = (data) => {
+        data.forEach((target, i) => {
+            const latlng = new kakao.maps.LatLng(target.lat, target.lng);
+            const markerContent = document.createElement('div');
+            markerContent.className = `marker ${target.color}`;
+            markerContent.innerHTML = target.label;
+
+            const marker = new kakao.maps.CustomOverlay({
+                position: latlng,
+                content: markerContent,
+                yAnchor: 1,
+                clickable: true
+            });
+
+            marker.setMap(map);
+
+            // 마커에 클릭 이벤트 추가
+            markerContent.addEventListener('click', getClickHandler(i));
+
+            const content = `
+            <div class="infowindow_wrap">
+                <div class="infowindow_title">${target.title}</div>
+                <div class="infowindow_address">${target.address}</div>
+                <div class="infowindow_name">이름: ${target.name}</div>
+                <div class="infowindow_phone">전화번호: ${target.phone}</div>
+                <div class="infowindow_description">설명: ${target.description}</div>
+                <a href="https://map.kakao.com/link/to/${target.title},${target.lat},${target.lng}" target="_blank">
+                    <button type='button'>길찾기(NAVI)</button>
+                </a>
+            </div>
+            `;
+
+            const infowindow = new kakao.maps.InfoWindow({
+                position: latlng,
+                content: content,
+                removable: true
+            });
+
+            markerList.push(marker);
+            infowindowList.push(infowindow);
+        });
+
+        kakao.maps.event.addListener(map, "click", () => {
+            infowindowList.forEach(infowindow => infowindow.close());
+            activeInfoWindow = null; // 모든 인포윈도우를 닫으면 추적 중인 인포윈도우도 초기화
+        });
+
+        const clusterer = new kakao.maps.MarkerClusterer({
+            map: map,
+            averageCenter: true,
+            minLevel: 10,
+            disableClickZoom: false,
+            gridSize: 20,
+            styles: [{
+                width: '30px', height: '30px',
+                background: 'rgba(255, 0, 0, 0.5)',
+                borderRadius: '15px',
+                color: '#fff',
+                textAlign: 'center',
+                lineHeight: '30px'
+            }, {
+                width: '40px', height: '40px',
+                background: 'rgba(0, 0, 255, 0.5)',
+                borderRadius: '20px',
+                color: '#fff',
+                textAlign: 'center',
+                lineHeight: '40px'
+            }, {
+                width: '50px', height: '50px',
+                background: 'rgba(0, 255, 0, 0.5)',
+                borderRadius: '25px',
+                color: '#fff',
+                textAlign: 'center',
+                lineHeight: '50px'
+            }]
+        });
+
+        clusterer.addMarkers(markerList);
+    };
+
+    initializeMap(data);
+</script>
+</body>
+</html>
