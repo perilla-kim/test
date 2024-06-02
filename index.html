@@ -234,11 +234,11 @@
             const level = map.getLevel();
             document.querySelectorAll('.marker').forEach(marker => {
                 let size = 40; // 기본 크기
-                let fontSize = 16; // 기본 글자 크기
-                if (level < 5) {
-                    size = 70;
-                    fontSize = 24;
-                } else if (level < 6) {
+                let fontSize = 20; // 기본 글자 크기
+                if (level < 3) {
+                    size = 150;
+                    fontSize = 50;
+                } else if (level < 15) {
                     size = 60;
                     fontSize = 20;
                 }
