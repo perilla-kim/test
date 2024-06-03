@@ -75,6 +75,7 @@
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
             font-family: 'Arial', sans-serif;
             max-width: 250px;
+            transition: all 0.3s ease; /* 크기 변화 애니메이션 추가 */
         }
         .infowindow_title {
             font-size: 16px;
@@ -148,6 +149,9 @@
 
         infowindow.open(map);
         activeInfoWindow = infowindow; // 새롭게 열린 인포윈도우를 추적
+
+        // 인포윈도우의 스타일을 줌 레벨에 따라 조정
+        adjustInfowindowStyle(map.getLevel());
     };
 
     const initializeMap = (data) => {
@@ -246,6 +250,25 @@
                 marker.style.height = `${size}px`;
                 marker.style.fontSize = `${fontSize}px`;
             });
+
+            // 인포윈도우 크기 및 글자 크기 조정
+            adjustInfowindowStyle(level);
+        });
+    };
+
+    const adjustInfowindowStyle = (level) => {
+        const infowindowElements = document.querySelectorAll('.infowindow_wrap, .infowindow_wrap *');
+        infowindowElements.forEach(infowindow => {
+            if (level >= 15) {
+                infowindow.style.fontSize = '24px';
+                infowindow.style.padding = '30px';
+            } else if (level >= 10) {
+                infowindow.style.fontSize = '18px';
+                infowindow.style.padding = '20px';
+            } else {
+                infowindow.style.fontSize = '14px';
+                infowindow.style.padding = '10px';
+            }
         });
     };
 
