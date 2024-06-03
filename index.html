@@ -141,13 +141,36 @@
     let activeOverlay = null; // 현재 열려있는 오버레이를 추적
 
     const data = [
-        { lat: 37.5665, lng: 126.9780, color: 'red', label: '콩', title: '장소 A', address: '서울시 A구', name: '홍길동', phone: '010-1234-5678', description: '설명 A' },
-        { lat: 37.5651, lng: 126.9895, color: 'blue', label: '들깨', title: '장소 B', address: '서울시 B구', name: '이순신', phone: '010-9876-5432', description: '설명 B' },
-        { lat: 37.5641, lng: 126.9765, color: 'green', label: '참깨', title: '장소 C', address: '서울시 C구', name: '김유신', phone: '010-1357-2468', description: '설명 C' },
-        { lat: 37.5635, lng: 126.9750, color: 'yellow', label: '땅콩', title: '장소 D', address: '서울시 D구', name: '장보고', phone: '010-2468-1357', description: '설명 D' },
-        { lat: 37.5625, lng: 126.9700, color: 'purple', label: '녹두', title: '장소 E', address: '서울시 E구', name: '이성계', phone: '010-1122-3344', description: '설명 E' },
-        { lat: 37.5615, lng: 126.9650, color: 'orange', label: '수수', title: '장소 F', address: '서울시 F구', name: '유관순', phone: '010-5566-7788', description: '설명 F' },
-        { lat: 37.5605, lng: 126.9600, color: 'pink', label: '팥', title: '장소 G', address: '서울시 G구', name: '안중근', phone: '010-9900-1234', description: '설명 G' }
+{ lat: 37.12956724, lng: 128.5679227, color: "red", label: "콩", title: "농가실증", address: "강원 영월군 김삿갓면 옥동리 652", name: "홍길동", phone: "010-1234-5678", description: "밀양401호, 선유2호, 선풍" },
+{ lat: 37.96496218, lng: 126.9428195, color: "red", label: "콩", title: "농가실증", address: "경기 파주시 적성면 객현리 601", name: "홍길동", phone: "010-1234-5678", description: "밀양401호, 선유2호, 선풍, 세움, 소리흑" },  
+{ lat: 36.8868317022966, lng: 127.8215796, color: "red", label: "콩", title: "농가실증", address: "충북 괴산군 불정면 한불로 1254", name: "홍길동", phone: "010-1234-5678", description: "밀양401호, 밀양404호, 선유2호, 선풍, 세움, 소리흑, 단흑, 소만, 청자5호, 밀양408호" },
+{ lat: 36.85929097, lng: 126.7235894, color: "red", label: "콩", title: "농가실증", address: "충남 당진시 순성면 옥호리 70", name: "홍길동", phone: "010-1234-5678", description: "선유2호, 선풍, 소리흑, 청미인, 밀양422호" }, 
+{ lat: 35.70843118, lng: 126.7031515, color: "red", label: "콩", title: "농가실증", address: "전북 부안군 행안면 대초리 1152-1, 2, 3, 4", name: "홍길동", phone: "010-1234-5678", description: "밀양401호, 밀양403호, 밀양404호, 선유2호, 이음올, 단흑" },
+{ lat: 34.92375304, lng: 126.7512512, color: "red", label: "콩", title: "농가실증", address: "전남 나주시 세지면 오봉리 921", name: "홍길동", phone: "010-1234-5678", description: "밀양401호, 선유2호, 선풍" },
+{ lat: 33.50435864, lng: 126.7805453, color: "red", label: "콩", title: "농가실증", address: "제주 제주시 구좌읍 덕천리 92", name: "홍길동", phone: "010-1234-5678", description: "아람, 해찬, 풍산" },
+{ lat: 33.29108911, lng: 126.3256973, color: "red", label: "콩", title: "농가실증", address: "제주 서귀포시 안덕면 서광리 380", name: "홍길동", phone: "010-1234-5678", description: "아람, 해찬, 풍산" },
+{ lat: 36.52619633, lng: 128.769792, color: "green", label: "참깨", title: "농가실증", address: "경북 안동시 남 선면 일대", name: "홍길동", phone: "010-1234-5678", description: "하니올, 영웅" },
+{ lat: 34.75547782, lng: 125.9266585, color: "green", label: "참깨", title: "농가실증", address: "전남 신안군 비금면 일대", name: "홍길동", phone: "010-1234-5678", description: "하니올" },
+{ lat: 35.36079833, lng: 128.7035465, color: "green", label: "참깨", title: "농가실증", address: "경남 창원시 의창구 대산면 모산리 844, 845", name: "홍길동", phone: "010-1234-5678", description: "하니올" },
+{ lat: 36.42748593, lng: 126.9989782, color: "green", label: "참깨", title: "농가실증", address: "충남 청양군 목면 본의리 120-4,5번지", name: "홍길동", phone: "010-1234-5678", description: "영웅, 하니올" },
+{ lat: 35.79119985, lng: 127.1102755, color: "green", label: "참깨", title: "농가실증", address: "전주시 완산구 삼천동 2가 291, 298-2, 298-3, 292, 290-2, 290-3", name: "홍길동", phone: "010-1234-5678", description: "하니올" },
+{ lat: 35.38500649, lng: 128.323763331797, color: "green", label: "참깨", title: "농가실증", address: "경남 의령군 정곡면 중교리 587-3, 경남 의령군 유곡면 청정로 14길 25-2", name: "홍길동", phone: "010-1234-5678", description: "하니올" },
+{ lat: 34.99767568, lng: 127.9764876, color: "green", label: "참깨", title: "농가실증", address: "경남 사천시 서포면 아포길 11", name: "홍길동", phone: "010-1234-5678", description: "하니올" },
+{ lat: 35.25518193, lng: 128.1436195, color: "green", label: "참깨", title: "농가실증", address: "경남 진주시 대곡면 단목리 939", name: "홍길동", phone: "010-1234-5678", description: "하니올" },
+{ lat: 34.61799258, lng: 126.5744014, color: "green", label: "참깨", title: "농가실증", address: "전남 해남군 마산면 화내리 700, 201, 마산면 노하리 산 98-3(300평)", name: "홍길동", phone: "010-1234-5678", description: "하니올, 영웅" },
+{ lat: 37.57082931, lng: 128.1568156, color: "blue", label: "들깨", title: "농가실증(종실)", address: "강원특별 자치도 횡성군 청일면 청일로 237", name: "홍길동", phone: "010-1234-5678", description: "늘새미, 수연, 가연" },  
+{ lat: 37.00947371, lng: 127.6473628, color: "blue", label: "들깨", title: "농가실증(종실)", address: "충청북도 음성군 생극면 오생리 341-4", name: "홍길동", phone: "010-1234-5678", description: "늘새미, 수연, 가연" },       
+{ lat: 35.53421902, lng: 128.766659579324, color: "blue", label: "들깨", title: "농가실증(잎)", address: "경상남도 밀양시 상동면 안인리 1039-1(토경), 안인리 1039-7(수경)", name: "홍길동", phone: "010-1234-5678", description: "새봄" },
+{ lat: 35.87260787, lng: 128.7630956, color: "blue", label: "들깨", title: "농가실증(잎)", address: "경상북도 경산시 하양읍 달바소길 87-21(토경), 환소1길 36(수경)", name: "홍길동", phone: "010-1234-5678", description: "새봄" },
+{ lat: 34.88464631, lng: 126.047605, color: "yellow", label: "땅콩", title: "전시포", address: "전남 신안군 자은면 구영1길 8", name: "홍길동", phone: "010-1234-5678", description: "해올, 케이올2호, 단미, 밀양100호, 보라온" },
+{ lat: 34.88274186, lng: 126.0119987, color: "yellow", label: "땅콩", title: "농가실증", address: "전남 신안군 자은면 백산리 183-20", name: "홍길동", phone: "010-1234-5678", description: "보라온, 흑찬, 해올, 케이올2호" },  
+{ lat: 36.78113056, lng: 128.6167463, color: "yellow", label: "땅콩 ", title: "농가실증", address: "경북 영주시 적서로 205번길 51-7", name: "홍길동", phone: "010-1234-5678", description: "단미, 참올" },
+{ lat: 35.43449254, lng: 126.6712123, color: "yellow", label: "땅콩", title: "농가실증", address: "전북특별자치 도 고창군 고창읍 녹두로 1158-17", name: "홍길동", phone: "010-1234-5678", description: "단미" },
+{ lat: 35.49073165, lng: 128.7415883, color: "pink", label: "팥", title: "농가실증", address: "밀양시 점필재로20", name: "홍길동", phone: "010-1234-5678", description: "흰구슬, 흰나래, 홍다" },
+{ lat: 35.75173843, lng: 129.072272, color: "pink", label: "팥", title: "농가실증", address: "경북 경주시 산내면 내일리 773-1답", name: "홍길동", phone: "010-1234-5678", description: "홍찬, 홍미인" },
+{ lat: 37.21206431, lng: 128.3698496, color: "pink", label: "팥", title: "농가실증", address: "강원특별자치도 영월군 한반도면 후탄리 497답", name: "홍길동", phone: "010-1234-5678", description: "담로" },
+{ lat: 37.21221222, lng: 128.369727, color: "pink", label: "팥", title: "농가실증", address: "강원특별자치도 영월군 한반도면 후탄리 498전", name: "홍길동", phone: "010-1234-5678", description: "담로" },
+{ lat: 34.42246531, lng: 126.176458, color: "orange", label: "수수", title: "농가실증", address: "전남 진도군 지산면 삼당리 452 등 12농가(수수 재배 작목반)", name: "홍길동", phone: "010-1234-5678", description: "고은찰" },
     ];
 
     const getClickHandler = (i) => () => {
@@ -273,7 +296,7 @@
             overlayElements.forEach(overlay => {
                 overlay.style.fontSize = '40px';
                 overlay.style.padding = '15px';
-                overlay.style.maxWidth = '350px'; /* 최대 너비 조정 */
+                overlay.style.maxWidth = '1000px'; /* 최대 너비 조정 */
             });
         } else {
             overlayElements.forEach(overlay => {
