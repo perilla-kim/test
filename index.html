@@ -160,8 +160,8 @@
             <div class="infowindow_wrap">
                 <div class="infowindow_title">${target.title}</div>
                 <div class="infowindow_address">${target.address}</div>
-                <div class="infowindow_name">이름: ${target.name}</div>
-                <div class="infowindow_phone">전화번호: ${target.phone}</div>
+                <div class="infowindow_name">${target.name}</div>
+                <div class="infowindow_phone">${target.phone}</div>
                 <div class="infowindow_description">설명: ${target.description}</div>
                 <a href="https://map.kakao.com/link/to/${target.title},${target.lat},${target.lng}" target="_blank">
                     <button type='button'>길찾기(NAVI)</button>
@@ -271,7 +271,7 @@
         const overlayElements = document.querySelectorAll('.infowindow_wrap, .infowindow_wrap *');
         if (level <= 1) {
             overlayElements.forEach(overlay => {
-                overlay.style.fontSize = '18px';
+                overlay.style.fontSize = '29px';
                 overlay.style.padding = '15px';
                 overlay.style.maxWidth = '250px'; /* 최대 너비 조정 */
             });
