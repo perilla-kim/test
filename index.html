@@ -69,23 +69,27 @@
 
         /* 인포윈도우 스타일 */
         .infowindow_wrap {
-            padding: 15px;
+            padding: 10px; /* 패딩 조정 */
             background: white;
-            border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            border-radius: 15px; /* 둥근 테두리 */
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1); /* 그림자 조정 */
             font-family: 'Arial', sans-serif;
-            max-width: 250px;
+            max-width: 250px; /* 기본 최대 너비 */
             transition: all 0.3s ease; /* 크기 변화 애니메이션 추가 */
+            line-height: 1.2; /* 줄 간격 조정 */
         }
         .infowindow_title {
-            font-size: 16px;
+            font-size: 16px; /* 글꼴 크기 */
             font-weight: bold;
-            margin-bottom: 10px;
+            margin-bottom: 8px; /* 줄 간격 조정 */
         }
         .infowindow_address, .infowindow_name, .infowindow_phone, .infowindow_description {
-            font-size: 14px;
-            margin-bottom: 5px;
+            font-size: 14px; /* 글꼴 크기 */
+            margin-bottom: 4px; /* 줄 간격 조정 */
             color: #333;
+            white-space: nowrap; /* 한 줄에 표시 */
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
         .infowindow_address:before, .infowindow_name:before, .infowindow_phone:before, .infowindow_description:before {
             content: '• ';
@@ -95,15 +99,21 @@
             background: #ff6b6b;
             border: none;
             color: white;
-            padding: 10px;
+            padding: 8px; /* 버튼 패딩 조정 */
             border-radius: 5px;
             cursor: pointer;
             width: 100%;
             text-align: center;
-            font-size: 14px;
+            font-size: 14px; /* 글꼴 크기 */
+            display: block;
+            margin: 10px auto 0; /* 가운데 정렬 */
+            text-decoration: none; /* 텍스트 데코레이션 제거 */
         }
         .infowindow_wrap button:hover {
             background: #ff4b4b;
+        }
+        .infowindow_wrap a {
+            text-decoration: none; /* 링크 텍스트 데코레이션 제거 */
         }
     </style>
 </head>
@@ -128,7 +138,7 @@
     const map = new kakao.maps.Map(mapContainer, mapOption); 
     const markerList = [];
     const infowindowList = [];
-    let activeInfoWindow = null; // 현재 열려있는 인포윈도우를 추적
+    let activeOverlay = null; // 현재 열려있는 오버레이를 추적
 
     const data = [
         { lat: 37.5665, lng: 126.9780, color: 'red', label: '콩', title: '장소 A', address: '서울시 A구', name: '홍길동', phone: '010-1234-5678', description: '설명 A' },
@@ -141,17 +151,36 @@
     ];
 
     const getClickHandler = (i) => () => {
-        const infowindow = infowindowList[i];
-
-        if (activeInfoWindow) {
-            activeInfoWindow.close(); // 현재 열려있는 인포윈도우가 있다면 닫음
+        if (activeOverlay) {
+            activeOverlay.setMap(null); // 현재 열려있는 오버레이가 있다면 닫음
         }
 
-        infowindow.open(map);
-        activeInfoWindow = infowindow; // 새롭게 열린 인포윈도우를 추적
+        const target = data[i];
+        const content = `
+            <div class="infowindow_wrap">
+                <div class="infowindow_title">${target.title}</div>
+                <div class="infowindow_address">${target.address}</div>
+                <div class="infowindow_name">이름: ${target.name}</div>
+                <div class="infowindow_phone">전화번호: ${target.phone}</div>
+                <div class="infowindow_description">설명: ${target.description}</div>
+                <a href="https://map.kakao.com/link/to/${target.title},${target.lat},${target.lng}" target="_blank">
+                    <button type='button'>길찾기(NAVI)</button>
+                </a>
+            </div>
+        `;
 
-        // 인포윈도우의 스타일을 줌 레벨에 따라 조정
-        adjustInfowindowStyle(map.getLevel());
+        const overlay = new kakao.maps.CustomOverlay({
+            position: new kakao.maps.LatLng(target.lat, target.lng),
+            content: content,
+            yAnchor: 1,
+            clickable: true
+        });
+
+        overlay.setMap(map);
+        activeOverlay = overlay; // 새롭게 열린 오버레이를 추적
+
+        // 오버레이의 스타일을 줌 레벨에 따라 조정
+        adjustOverlayStyle(map.getLevel());
     };
 
     const initializeMap = (data) => {
@@ -173,32 +202,14 @@
             // 마커에 클릭 이벤트 추가
             markerContent.addEventListener('click', getClickHandler(i));
 
-            const content = `
-            <div class="infowindow_wrap">
-                <div class="infowindow_title">${target.title}</div>
-                <div class="infowindow_address">${target.address}</div>
-                <div class="infowindow_name">이름: ${target.name}</div>
-                <div class="infowindow_phone">전화번호: ${target.phone}</div>
-                <div class="infowindow_description">설명: ${target.description}</div>
-                <a href="https://map.kakao.com/link/to/${target.title},${target.lat},${target.lng}" target="_blank">
-                    <button type='button'>길찾기(NAVI)</button>
-                </a>
-            </div>
-            `;
-
-            const infowindow = new kakao.maps.InfoWindow({
-                position: latlng,
-                content: content,
-                removable: true
-            });
-
             markerList.push(marker);
-            infowindowList.push(infowindow);
         });
 
         kakao.maps.event.addListener(map, "click", () => {
-            infowindowList.forEach(infowindow => infowindow.close());
-            activeInfoWindow = null; // 모든 인포윈도우를 닫으면 추적 중인 인포윈도우도 초기화
+            if (activeOverlay) {
+                activeOverlay.setMap(null);
+                activeOverlay = null; // 모든 오버레이를 닫으면 추적 중인 오버레이도 초기화
+            }
         });
 
         const clusterer = new kakao.maps.MarkerClusterer({
@@ -239,10 +250,10 @@
             document.querySelectorAll('.marker').forEach(marker => {
                 let size = 40; // 기본 크기
                 let fontSize = 20; // 기본 글자 크기
-                if (level < 3) {
+                if (level <= 1) {
                     size = 150;
                     fontSize = 50;
-                } else if (level < 15) {
+                } else if (level <= 15) {
                     size = 60;
                     fontSize = 20;
                 }
@@ -251,25 +262,26 @@
                 marker.style.fontSize = `${fontSize}px`;
             });
 
-            // 인포윈도우 크기 및 글자 크기 조정
-            adjustInfowindowStyle(level);
+            // 오버레이 크기 및 글자 크기 조정
+            adjustOverlayStyle(level);
         });
     };
 
-    const adjustInfowindowStyle = (level) => {
-        const infowindowElements = document.querySelectorAll('.infowindow_wrap, .infowindow_wrap *');
-        infowindowElements.forEach(infowindow => {
-            if (level >= 15) {
-                infowindow.style.fontSize = '24px';
-                infowindow.style.padding = '30px';
-            } else if (level >= 10) {
-                infowindow.style.fontSize = '18px';
-                infowindow.style.padding = '20px';
-            } else {
-                infowindow.style.fontSize = '14px';
-                infowindow.style.padding = '10px';
-            }
-        });
+    const adjustOverlayStyle = (level) => {
+        const overlayElements = document.querySelectorAll('.infowindow_wrap, .infowindow_wrap *');
+        if (level <= 1) {
+            overlayElements.forEach(overlay => {
+                overlay.style.fontSize = '18px';
+                overlay.style.padding = '15px';
+                overlay.style.maxWidth = '250px'; /* 최대 너비 조정 */
+            });
+        } else {
+            overlayElements.forEach(overlay => {
+                overlay.style.fontSize = '';
+                overlay.style.padding = '';
+                overlay.style.maxWidth = ''; /* 원래 크기로 복원 */
+            });
+        }
     };
 
     initializeMap(data);
