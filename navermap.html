@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>지도 생성하기</title>
+    <style>
+        /* Navbar 스타일 */
+        #navbar {
+            list-style-type: none;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            background-color: #333;
+            position: fixed;
+            width: 100%;
+            z-index: 1000;
+            top: 0;
+            display: flex; /* Flexbox를 사용하여 정렬 */
+            justify-content: center; /* 가운데 정렬 */
+        }
+
+        #navbar li {
+            display: inline;
+        }
+
+        #navbar li a {
+            display: block;
+            color: white;
+            text-align: center;
+            padding: 14px 16px;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        #navbar li a:hover {
+            background-color: #111;
+        }
+
+        /* 지도 스타일 */
+        #map {
+            width: 100%;
+            height: 100vh;
+            margin-top: 50px; /* Navbar 높이만큼 지도 아래로 내리기 */
+        }
+
+        .marker {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            font-weight: bold;
+            position: absolute;
+            transform: translate(-50%, -50%);
+            cursor: pointer;
+            border: 2px solid white;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+            font-size: 16px; /* 글꼴 크기 조정 */
+        }
+        .marker.red { background-color: #FF6B6B; }
+        .marker.blue { background-color: #4A90E2; }
+        .marker.green { background-color: #50E3C2; }
+        .marker.yellow { background-color: #F8E71C; color: black; }
+        .marker.purple { background-color: #BD10E0; }
+        .marker.orange { background-color: #F5A623; }
+        .marker.pink { background-color: #FF5E9C; color: black; }
+
+        /* 인포윈도우 스타일 */
+        .infowindow_wrap {
+            padding: 10px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* 그림자 단순화 */
+            font-family: 'Arial', sans-serif;
+            max-width: 250px;
+            line-height: 1.2;
+            transition: none; /* 애니메이션 제거 */
+        }
+        .infowindow_title {
+            font-size: 16px;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+        .infowindow_address, .infowindow_name, .infowindow_phone, .infowindow_description {
+            font-size: 14px;
+            margin-bottom: 4px;
+            color: #333;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .infowindow_address:before, .infowindow_name:before, .infowindow_phone:before, .infowindow_description:before {
+            content: '• ';
+            color: #ff6b6b;
+        }
+        .infowindow_wrap button {
+            background: #ff6b6b;
+            border: none;
+            color: white;
+            padding: 8px;
+            border-radius: 5px;
+            cursor: pointer;
+            width: 100%;
+            text-align: center;
+            font-size: 14px;
+            display: block;
+            margin: 10px auto 0;
+            text-decoration: none;
+        }
+        .infowindow_wrap button:hover {
+            background: #ff4b4b;
+        }
+        .infowindow_wrap a {
+            text-decoration: none;
+        }
+
+        @media (max-width: 768px) {
+            .infowindow_wrap {
+                padding: 8px;
+                max-width: 200px;
+            }
+            .infowindow_title {
+                font-size: 14px;
+            }
+            .infowindow_address, .infowindow_name, .infowindow_phone, .infowindow_description {
+                font-size: 12px;
+            }
+            .infowindow_wrap button {
+                font-size: 12px;
+                padding: 6px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .infowindow_wrap {
+                padding: 6px;
+                max-width: 150px;
+            }
+            .infowindow_title {
+                font-size: 12px;
+            }
+            .infowindow_address, .infowindow_name, .infowindow_phone, .infowindow_description {
+                font-size: 10px;
+            }
+            .infowindow_wrap button {
+                font-size: 10px;
+                padding: 4px;
+            }
+        }
+    </style>
+</head>
+<body>
+<!-- Navbar -->
+<ul id="navbar">
+    <li>
+        <a href="#">현장실증농가</a>
+    </li>
+</ul>
+
+<!-- 지도를 표시할 div 입니다 -->
+<div id="map"></div>
+
+<script type="text/javascript" src="https://dapi.kakao.com/v2/maps/sdk.js?appkey=1bead7e4afef97aa7ff0af16e41eb10e&libraries=services,clusterer"></script>
+<script>
+    const mapContainer = document.getElementById('map'),
+          mapOption = { 
+              center: new kakao.maps.LatLng(36.3525471565863, 127.385816196595),
+              level: 12
+          };
+    const map = new kakao.maps.Map(mapContainer, mapOption); 
+    const markerList = [];
+    const infowindowList = [];
+    let activeOverlay = null;
+
+    const data = [
+        { lat: 37.12956724, lng: 128.5679227, color: "red", label: "콩", title: "농가실증", address: "강원 영월군 김삿갓면 옥동리 652", name: "홍길동", phone: "010-1234-5678", description: "밀양401호, 선유2호, 선풍" },
+        { lat: 37.96496218, lng: 126.9428195, color: "red", label: "콩", title: "농가실증", address: "경기 파주시 적성면 객현리 601", name: "홍길동", phone: "010-1234-5678", description: "밀양401호, 선유2호, 선풍, 세움, 소리흑" },  
+        { lat: 36.8868317022966, lng: 127.8215796, color: "red", label: "콩", title: "농가실증", address: "충북 괴산군 불정면 한불로 1254", name: "홍길동", phone: "010-1234-5678", description: "밀양401호, 밀양404호, 선유2호, 선풍, 세움, 소리흑, 단흑, 소만, 청자5호, 밀양408호" },
+        { lat: 36.85929097, lng: 126.7235894, color: "red", label: "콩", title: "농가실증", address: "충남 당진시 순성면 옥호리 70", name: "홍길동", phone: "010-1234-5678", description: "선유2호, 선풍, 소리흑, 청미인, 밀양422호" }, 
+        { lat: 35.70843118, lng: 126.7031515, color: "red", label: "콩", title: "농가실증", address: "전북 부안군 행안면 대초리 1152-1, 2, 3, 4", name: "홍길동", phone: "010-1234-5678", description: "밀양401호, 밀양403호, 밀양404호, 선유2호, 이음올, 단흑" },
+        { lat: 34.92375304, lng: 126.7512512, color: "red", label: "콩", title: "농가실증", address: "전남 나주시 세지면 오봉리 921", name: "홍길동", phone: "010-1234-5678", description: "밀양401호, 선유2호, 선풍" },
+        { lat: 33.50435864, lng: 126.7805453, color: "red", label: "콩", title: "농가실증", address: "제주 제주시 구좌읍 덕천리 92", name: "홍길동", phone: "010-1234-5678", description: "아람, 해찬, 풍산" },
+        { lat: 33.29108911, lng: 126.3256973, color: "red", label: "콩", title: "농가실증", address: "제주 서귀포시 안덕면 서광리 380", name: "홍길동", phone: "010-1234-5678", description: "아람, 해찬, 풍산" },
+        { lat: 36.52619633, lng: 128.769792, color: "green", label: "참깨", title: "농가실증", address: "경북 안동시 남 선면 일대", name: "홍길동", phone: "010-1234-5678", description: "하니올, 영웅" },
+        { lat: 34.75547782, lng: 125.9266585, color: "green", label: "참깨", title: "농가실증", address: "전남 신안군 비금면 일대", name: "홍길동", phone: "010-1234-5678", description: "하니올" },
+        { lat: 35.36079833, lng: 128.7035465, color: "green", label: "참깨", title: "농가실증", address: "경남 창원시 의창구 대산면 모산리 844, 845", name: "홍길동", phone: "010-1234-5678", description: "하니올" },
+        { lat: 36.42748593, lng: 126.9989782, color: "green", label: "참깨", title: "농가실증", address: "충남 청양군 목면 본의리 120-4,5번지", name: "홍길동", phone: "010-1234-5678", description: "영웅, 하니올" },
+        { lat: 35.79119985, lng: 127.1102755, color: "green", label: "참깨", title: "농가실증", address: "전주시 완산구 삼천동 2가 291, 298-2, 298-3, 292, 290-2, 290-3", name: "홍길동", phone: "010-1234-5678", description: "하니올" },
+        { lat: 35.38500649, lng: 128.323763331797, color: "green", label: "참깨", title: "농가실증", address: "경남 의령군 정곡면 중교리 587-3, 경남 의령군 유곡면 청정로 14길 25-2", name: "홍길동", phone: "010-1234-5678", description: "하니올" },
+        { lat: 34.99767568, lng: 127.9764876, color: "green", label: "참깨", title: "농가실증", address: "경남 사천시 서포면 아포길 11", name: "홍길동", phone: "010-1234-5678", description: "하니올" },
+        { lat: 35.25518193, lng: 128.1436195, color: "green", label: "참깨", title: "농가실증", address: "경남 진주시 대곡면 단목리 939", name: "홍길동", phone: "010-1234-5678", description: "하니올" },
+        { lat: 34.61799258, lng: 126.5744014, color: "green", label: "참깨", title: "농가실증", address: "전남 해남군 마산면 화내리 700, 201, 마산면 노하리 산 98-3(300평)", name: "홍길동", phone: "010-1234-5678", description: "하니올, 영웅" },
+        { lat: 37.57082931, lng: 128.1568156, color: "blue", label: "들깨", title: "농가실증(종실)", address: "강원특별 자치도 횡성군 청일면 청일로 237", name: "홍길동", phone: "010-1234-5678", description: "늘새미, 수연, 가연" },  
+        { lat: 37.00947371, lng: 127.6473628, color: "blue", label: "들깨", title: "농가실증(종실)", address: "충청북도 음성군 생극면 오생리 341-4", name: "홍길동", phone: "010-1234-5678", description: "늘새미, 수연, 가연" },       
+        { lat: 35.53421902, lng: 128.766659579324, color: "blue", label: "들깨", title: "농가실증(잎)", address: "경상남도 밀양시 상동면 안인리 1039-1(토경), 안인리 1039-7(수경)", name: "홍길동", phone: "010-1234-5678", description: "새봄" },
+        { lat: 35.87260787, lng: 128.7630956, color: "blue", label: "들깨", title: "농가실증(잎)", address: "경상북도 경산시 하양읍 달바소길 87-21(토경), 환소1길 36(수경)", name: "홍길동", phone: "010-1234-5678", description: "새봄" },
+        { lat: 34.88464631, lng: 126.047605, color: "yellow", label: "땅콩", title: "전시포", address: "전남 신안군 자은면 구영1길 8", name: "홍길동", phone: "010-1234-5678", description: "해올, 케이올2호, 단미, 밀양100호, 보라온" },
+        { lat: 34.88274186, lng: 126.0119987, color: "yellow", label: "땅콩", title: "농가실증", address: "전남 신안군 자은면 백산리 183-20", name: "홍길동", phone: "010-1234-5678", description: "보라온, 흑찬, 해올, 케이올2호" },  
+        { lat: 36.78113056, lng: 128.6167463, color: "yellow", label: "땅콩 ", title: "농가실증", address: "경북 영주시 적서로 205번길 51-7", name: "홍길동", phone: "010-1234-5678", description: "단미, 참올" },
+        { lat: 35.43449254, lng: 126.6712123, color: "yellow", label: "땅콩", title: "농가실증", address: "전북특별자치 도 고창군 고창읍 녹두로 1158-17", name: "홍길동", phone: "010-1234-5678", description: "단미" },
+        { lat: 35.49073165, lng: 128.7415883, color: "pink", label: "팥", title: "농가실증", address: "밀양시 점필재로20", name: "홍길동", phone: "010-1234-5678", description: "흰구슬, 흰나래, 홍다" },
+        { lat: 35.75173843, lng: 129.072272, color: "pink", label: "팥", title: "농가실증", address: "경북 경주시 산내면 내일리 773-1답", name: "홍길동", phone: "010-1234-5678", description: "홍찬, 홍미인" },
+        { lat: 37.21206431, lng: 128.3698496, color: "pink", label: "팥", title: "농가실증", address: "강원특별자치도 영월군 한반도면 후탄리 497답", name: "홍길동", phone: "010-1234-5678", description: "담로" },
+        { lat: 37.21221222, lng: 128.369727, color: "pink", label: "팥", title: "농가실증", address: "강원특별자치도 영월군 한반도면 후탄리 498전", name: "홍길동", phone: "010-1234-5678", description: "담로" },
+        { lat: 34.42246531, lng: 126.176458, color: "orange", label: "수수", title: "농가실증", address: "전남 진도군 지산면 삼당리 452 등 12농가(수수 재배 작목반)", name: "홍길동", phone: "010-1234-5678", description: "고은찰" },
+    ];
+
+    const getClickHandler = (i) => () => {
+        if (activeOverlay) {
+            activeOverlay.setMap(null); // 현재 열려있는 오버레이가 있다면 닫음
+        }
+
+        const target = data[i];
+        const content = `
+            <div class="infowindow_wrap">
+                <div class="infowindow_title">${target.title}</div>
+                <div class="infowindow_address">${target.address}</div>
+                <div class="infowindow_name">${target.name}</div>
+                <div class="infowindow_phone">${target.phone}</div>
+                <div class="infowindow_description">설명: ${target.description}</div>
+                <a href="https://map.kakao.com/link/to/${target.title},${target.lat},${target.lng}" target="_blank">
+                    <button type='button'>길찾기(NAVI)</button>
+                </a>
+            </div>
+        `;
+
+        const overlay = new kakao.maps.CustomOverlay({
+            position: new kakao.maps.LatLng(target.lat, target.lng),
+            content: content,
+            yAnchor: 1,
+            clickable: true
+        });
+
+        overlay.setMap(map);
+        activeOverlay = overlay; // 새롭게 열린 오버레이를 추적
+
+        // 오버레이의 스타일을 줌 레벨에 따라 조정
+        adjustOverlayStyle(map.getLevel());
+    };
+
+    const initializeMap = (data) => {
+        data.forEach((target, i) => {
+            const latlng = new kakao.maps.LatLng(target.lat, target.lng);
+            const markerContent = document.createElement('div');
+            markerContent.className = `marker ${target.color}`;
+            markerContent.innerHTML = target.label;
+
+            const marker = new kakao.maps.CustomOverlay({
+                position: latlng,
+                content: markerContent,
+                yAnchor: 1,
+                clickable: true
+            });
+
+            marker.setMap(map);
+
+            // 마커에 클릭 이벤트 추가
+            markerContent.addEventListener('click', getClickHandler(i));
+
+            markerList.push(marker);
+        });
+
+        kakao.maps.event.addListener(map, "click", () => {
+            if (activeOverlay) {
+                activeOverlay.setMap(null);
+                activeOverlay = null; // 모든 오버레이를 닫으면 추적 중인 오버레이도 초기화
+            }
+        });
+
+        const clusterer = new kakao.maps.MarkerClusterer({
+            map: map,
+            averageCenter: true,
+            minLevel: 10,
+            disableClickZoom: false,
+            gridSize: 50, // 클러스터링 간격을 늘림
+            styles: [{
+                width: '40px', height: '40px',
+                background: 'rgba(255, 0, 0, 0.5)',
+                borderRadius: '20px',
+                color: '#fff',
+                textAlign: 'center',
+                lineHeight: '40px'
+            }]
+        });
+
+        clusterer.addMarkers(markerList);
+
+        // 지도 줌 이벤트 핸들러
+        kakao.maps.event.addListener(map, 'zoom_changed', function() {
+            const level = map.getLevel();
+            document.querySelectorAll('.marker').forEach(marker => {
+                let size = 40; // 기본 크기
+                let fontSize = 16; // 기본 글자 크기
+                if (level <= 4) {
+                    size = 80; // 줌 레벨 1-2에서 마커 크기 최대로
+                    fontSize = 24;
+                } else if (level <= 8) {
+                    size = 60; // 줌 레벨 8에서 마커 크기 중간으로
+                    fontSize = 20;
+                } else if (level <= 12) {
+                    size = 40; // 기본 크기
+                    fontSize = 16;
+                }
+                marker.style.width = `${size}px`;
+                marker.style.height = `${size}px`;
+                marker.style.fontSize = `${fontSize}px`;
+            });
+
+            // 오버레이 크기 및 글자 크기 조정
+            adjustOverlayStyle(level);
+        });
+    };
+
+    const adjustOverlayStyle = (level) => {
+        const overlayElements = document.querySelectorAll('.infowindow_wrap, .infowindow_wrap *');
+        if (level <= 2) {
+            overlayElements.forEach(overlay => {
+                overlay.style.fontSize = '40px';
+                overlay.style.padding = '15px';
+                overlay.style.maxWidth = '1000px'; /* 최대 너비 조정 */
+            });
+        } else if (level <= 8) {
+            overlayElements.forEach(overlay => {
+                overlay.style.fontSize = '30px';
+                overlay.style.padding = '10px';
+                overlay.style.maxWidth = '800px'; /* 중간 너비 */
+            });
+        } else {
+            overlayElements.forEach(overlay => {
+                overlay.style.fontSize = '';
+                overlay.style.padding = '';
+                overlay.style.maxWidth = ''; /* 원래 크기로 복원 */
+            });
+        }
+    };
+
+    initializeMap(data);
+</script>
+</body>
+</html>
