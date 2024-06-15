@@ -213,9 +213,6 @@
 
         overlay.setMap(map);
         activeOverlay = overlay; // 새롭게 열린 오버레이를 추적
-
-        // 오버레이의 스타일을 줌 레벨에 따라 조정
-        adjustOverlayStyle(map.getLevel());
     };
 
     const initializeMap = (data) => {
@@ -269,49 +266,23 @@
         kakao.maps.event.addListener(map, 'zoom_changed', function() {
             const level = map.getLevel();
             document.querySelectorAll('.marker').forEach(marker => {
-                let size = 40; // 기본 크기
+                let size = 30; // 기본 크기
                 let fontSize = 16; // 기본 글자 크기
                 if (level <= 4) {
-                    size = 80; // 줌 레벨 1-2에서 마커 크기 최대로
-                    fontSize = 24;
+                    size = 30; // 줌 레벨 1-2에서 마커 크기 최대로
+                    fontSize = 16;
                 } else if (level <= 8) {
-                    size = 60; // 줌 레벨 8에서 마커 크기 중간으로
-                    fontSize = 20;
+                    size = 30; // 줌 레벨 8에서 마커 크기 중간으로
+                    fontSize = 16;
                 } else if (level <= 12) {
-                    size = 40; // 기본 크기
+                    size = 30; // 기본 크기
                     fontSize = 16;
                 }
                 marker.style.width = `${size}px`;
                 marker.style.height = `${size}px`;
                 marker.style.fontSize = `${fontSize}px`;
             });
-
-            // 오버레이 크기 및 글자 크기 조정
-            adjustOverlayStyle(level);
         });
-    };
-
-    const adjustOverlayStyle = (level) => {
-        const overlayElements = document.querySelectorAll('.infowindow_wrap, .infowindow_wrap *');
-        if (level <= 2) {
-            overlayElements.forEach(overlay => {
-                overlay.style.fontSize = '40px';
-                overlay.style.padding = '15px';
-                overlay.style.maxWidth = '1000px'; /* 최대 너비 조정 */
-            });
-        } else if (level <= 8) {
-            overlayElements.forEach(overlay => {
-                overlay.style.fontSize = '30px';
-                overlay.style.padding = '10px';
-                overlay.style.maxWidth = '800px'; /* 중간 너비 */
-            });
-        } else {
-            overlayElements.forEach(overlay => {
-                overlay.style.fontSize = '';
-                overlay.style.padding = '';
-                overlay.style.maxWidth = ''; /* 원래 크기로 복원 */
-            });
-        }
     };
 
     initializeMap(data);
