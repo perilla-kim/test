@@ -28,7 +28,7 @@
             display: block;
             color: white;
             text-align: center;
-            padding: 11px 13px;
+            padding: 14px 16px;
             text-decoration: none;
             font-weight: bold;
         }
@@ -43,14 +43,14 @@
             display: flex;
             justify-content: center;
             padding: 5px;
-            background-color: rgba(252, 250, 250,);
+            background-color: rgba(252, 250, 250, 0.5); /* 투명도 적용된 배경색 */
             gap: 10px; /* 버튼 사이 간격 */
         }
 
         #filters button {
-            margin: 4px;
-            padding: 5px 5px; /* 크기 줄임 */
-            font-size: 12px; /* 글꼴 크기 줄임 */
+            margin: 5px;
+            padding: 8px 16px; /* 크기 줄임 */
+            font-size: 14px; /* 글꼴 크기 줄임 */
             cursor: pointer;
             border: none;
             border-radius: 20px; /* 라운드된 모서리 */
@@ -70,11 +70,11 @@
         }
 
         #filter-chamsae {
-            background: linear-gradient(135deg, #50E3C2, #50E3C2); /* 참깨 색상 */
+            background: linear-gradient(135deg, #4A90E2, #4A90E2); /* 참깨 색상 */
         }
 
         #filter-deulkkae {
-            background: linear-gradient(135deg, #4A90E2, #4A90E2); /* 들깨 색상 */
+            background: linear-gradient(135deg, #50E3C2, #50E3C2); /* 들깨 색상 */
         }
 
         #filter-ttangkong {
@@ -155,7 +155,6 @@
             color: #ff6b6b;
         }
         .infowindow_wrap button {
-            background: #ff6b6b;
             border: none;
             color: white;
             padding: 8px;
@@ -168,8 +167,17 @@
             margin: 10px auto 0;
             text-decoration: none;
         }
-        .infowindow_wrap button:hover {
+        .infowindow_wrap .kakao_button {
+            background: #ff6b6b;
+        }
+        .infowindow_wrap .kakao_button:hover {
             background: #ff4b4b;
+        }
+        .infowindow_wrap .naver_button {
+            background: #4A90E2;
+        }
+        .infowindow_wrap .naver_button:hover {
+            background: #357ABD;
         }
         .infowindow_wrap a {
             text-decoration: none;
@@ -360,7 +368,10 @@
                     <div class="infowindow_phone">${target.phone}</div>
                     <div class="infowindow_description">품종: ${target.description}</div>
                     <a href="https://map.kakao.com/?nil_profile=title&nil_src=local&q=${encodeURIComponent(target.address)}" target="_blank">
-                        <button type='button'>카카오맵 가기</button>
+                        <button type='button' class="kakao_button">카카오맵 가기</button>
+                    </a>
+                    <a href="https://map.naver.com/v5/search/${encodeURIComponent(target.address)}" target="_blank">
+                        <button type='button' class="naver_button">네이버맵 가기</button>
                     </a>
                 </div>
             </div>
